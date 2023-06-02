@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TestCompraGamer.Models;
 
 namespace TestCompraGamer.Controllers
 {
     [ApiController]
     [Route("cliente")]
-    public class AltaCliente : ControllerBase
+    public class ClienteController : ControllerBase
     {
         [HttpGet]
         [Route("listar")]
@@ -29,7 +31,7 @@ namespace TestCompraGamer.Controllers
                     nombre = "Luis"
                 }
             };
-        return clientes;
+            return clientes;
         }
 
         [HttpGet]
@@ -67,16 +69,11 @@ namespace TestCompraGamer.Controllers
         [Route("eliminar")]
         public dynamic eliminarCliente(Cliente cliente)
         {
-            string token = Request.Headers.Where(x => x.Key == "token").FirstOrDefault().Value;
-            if (token != "testtoken")
-            {
-                return new
-                {
-                    success = false,
-                    message = "token incorrecto",
-                    result = ""
-                };
-            }
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            var rtaToken = Jwt.validarToken(identity);
+            if (!rtaToken.success) return rtaToken;
+            
             return new
             {
                 success = true,

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
+using System.Configuration;
 using System.Text;
 using TestCompraGamer.MySql;
 using TestCompraGamer.Repositories;
+using TestCompraGamer.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +15,16 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+
+// Configuracion de la autenticación JWT
+builder.Services.AddAuthentication(options =>
 {
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
@@ -35,6 +44,14 @@ builder.Services.AddSingleton(mySQLConfiguration);
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 
+builder.Services.AddTransient<CuitValidador>();
+builder.Services.AddScoped<CuitValidador>();
+builder.Services.AddSingleton<CuitValidador>();
+
+builder.Services.AddTransient<PersonalAuthenticationService>();
+builder.Services.AddScoped<PersonalAuthenticationService>();
+builder.Services.AddSingleton<PersonalAuthenticationService>();
+builder.Services.AddTransient<string>(_ => "some value");
 
 var app = builder.Build();
 
@@ -44,6 +61,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+/*app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});*/
 
 app.UseHttpsRedirection();
 

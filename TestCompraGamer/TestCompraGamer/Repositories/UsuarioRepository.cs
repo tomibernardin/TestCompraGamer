@@ -7,7 +7,8 @@ namespace TestCompraGamer.Repositories
 {
     public class UsuarioRepository : IUsuarioRepository
     {
-        /*----- MYSQL Connection -----*/
+        /* ---------- MYSQL Connection ---------- */
+
 
         private readonly MySQLConfiguration _connectionString;
         public UsuarioRepository(MySQLConfiguration connectionString)
@@ -18,7 +19,7 @@ namespace TestCompraGamer.Repositories
         {
             return new MySqlConnection(_connectionString.ConnectionString);
         }
-        /*----- Queries -----*/
+        /* ---------- Queries ---------- */
         public async Task<bool> DeleteUser(Usuario_Acceso usuario)
         {
             var db = dbConnection();
